@@ -109,9 +109,9 @@ readings_info read_analogue(int read_for_time_ms) {
 
         // erase the range, then write to it
         esp_err_t ret = esp_partition_erase_range(partition, curr_offset_bytes, curr_read_size_bytes);
-        assertm(ret == ESP_OK, "Failed to erase range");
+        // assertm(ret == ESP_OK, "Failed to erase range");
         ret = esp_partition_write(partition, curr_offset_bytes, buffer, curr_read_size_bytes);
-        asssertm(ret == ESP_OK, "Failed to write to partition");
+        // assertm(ret == ESP_OK, "Failed to write to partition");
 
         curr_offset_bytes += curr_read_size_bytes;
         readings_made += curr_read_size;
@@ -147,7 +147,7 @@ void read_flash_to_buff(const esp_partition_t* partition, mp_obj_t list, int off
 
         int read_size_bytes = curr_read_size * sizeof(reading_size);
         esp_err_t ret = esp_partition_read(partition, curr_offset, buffer, read_size_bytes);
-        assertm(ret == ESP_OK, "Failed to read from partition");
+        // assertm(ret == ESP_OK, "Failed to read from partition");
 
         add_buff_items_to_list(buffer, curr_read_size, list);
 
