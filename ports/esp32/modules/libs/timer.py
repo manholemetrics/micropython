@@ -8,7 +8,6 @@ def sleep_callback(timer):
         from logic.utils.sleep import standard_sleep
         standard_sleep()
     finally:
-        print("Enabling irq")
         machine.enable_irq()
 
 def setup_turn_off_timer():

@@ -22,16 +22,11 @@ def get_reset_cause():
         return "INCOMPLETE"
     elif cause == HARD_RESET:
         print("[rst] Device reset due to hardware reset")
-        return "COMPLETE"
     elif cause == WDT_RESET:
         print("[rst] Device reset due to watchdog")
-        return "COMPLETE"
     elif cause == DEEPSLEEP_RESET:
         print("[rst] Device woke up from deep sleep (including short sleep)")
-        return "COMPLETE"
     elif cause == SOFT_RESET:
         print("[rst] Software reset")
-        return "COMPLETE"
     else:
         print("[rst] Unknown reset cause")
-        return "COMPLETE"
