@@ -14,10 +14,9 @@ def setup_turn_off_timer():
     print('start2')
     timer = machine.Timer(0)
     print('start3')
-    timer.init(period=300000, mode=machine.Timer.ONE_SHOT, callback=sleep_callback)
+    timer.init(period=2100000, mode=machine.Timer.ONE_SHOT, callback=sleep_callback)
     return timer
 
 def start_timer():
-    print('start1')
     setup_turn_off_timer()
     
