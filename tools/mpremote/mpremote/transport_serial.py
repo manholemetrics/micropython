@@ -40,8 +40,12 @@ from errno import EPERM
 from .console import VT_ENABLED
 from .transport import TransportError, TransportExecError, Transport
 
+VID_ESPRESSIF = 0x303A  # Espressif Incorporated
+
 
 class SerialTransport(Transport):
+    fs_hook_mount = "/remote"  # MUST match the mount point in fs_hook_code
+
     def __init__(self, device, baudrate=115200, wait=0, exclusive=True, timeout=None):
         self.in_raw_repl = False
         self.use_raw_paste = True
@@ -69,7 +73,10 @@ class SerialTransport(Transport):
                     self.serial = serial.Serial(**serial_kwargs)
                     self.serial.port = device
                     portinfo = list(serial.tools.list_ports.grep(device))  # type: ignore
-                    if portinfo and portinfo[0].manufacturer != "Microsoft":
+                    if portinfo and (
+                        getattr(portinfo[0], "vid", 0) == VID_ESPRESSIF
+                        or getattr(portinfo[0], "manufacturer", "") != "Microsoft"
+                    ):
                         # ESP8266/ESP32 boards use RTS/CTS for flashing and boot mode selection.
                         # DTR False: to avoid using the reset button will hang the MCU in bootloader mode
                         # RTS False: to prevent pulses on rts on serial.close() that would POWERON_RESET an ESPxx
@@ -375,7 +382,11 @@ class SerialTransport(Transport):
         self.serial = self.serial.orig_serial
 
         # Provide a message about the remount.
-        out_callback(bytes(f"\r\nRemount local directory {self.cmd.root} at /remote\r\n", "utf8"))
+        out_callback(
+            bytes(
+                f"\r\nRemount local directory {self.cmd.root} at {self.fs_hook_mount}\r\n", "utf8"
+            )
+        )
 
         # Enter raw REPL and re-mount the remote filesystem.
         self.serial.write(b"\x01")
@@ -392,7 +403,7 @@ class SerialTransport(Transport):
 
     def umount_local(self):
         if self.mounted:
-            self.exec('os.umount("/remote")')
+            self.exec(f'os.umount("{self.fs_hook_mount}")')
             self.mounted = False
             self.serial = self.serial.orig_serial
 
@@ -413,7 +424,7 @@ fs_hook_cmds = {
     "CMD_RMDIR": 13,
 }
 
-fs_hook_code = """\
+fs_hook_code = f"""\
 import os, io, struct, micropython
 
 SEEK_SET = 0
@@ -746,8 +757,8 @@ class RemoteFS:
 
 
 def __mount():
-    os.mount(RemoteFS(RemoteCommand()), '/remote')
-    os.chdir('/remote')
+    os.mount(RemoteFS(RemoteCommand()), '{SerialTransport.fs_hook_mount}')
+    os.chdir('{SerialTransport.fs_hook_mount}')
 """
 
 # Apply basic compression on hook code.
