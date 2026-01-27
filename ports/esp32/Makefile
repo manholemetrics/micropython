@@ -91,6 +91,9 @@ clean:
 deploy:
 	$(call RUN_IDF_PY,$(DEVICE) flash)
 
+encrypted-deploy:
+	$(call RUN_IDF_PY,$(DEVICE) encrypted-flash)
+
 erase:
 	$(call RUN_IDF_PY,$(DEVICE) erase-flash)
 
