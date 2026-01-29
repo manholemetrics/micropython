@@ -91,6 +91,9 @@ clean:
 deploy:
 	$(call RUN_IDF_PY,$(DEVICE) flash)
 
+encrypted-deploy:
+	$(call RUN_IDF_PY,$(DEVICE) encrypted-flash)
+
 erase:
 	$(call RUN_IDF_PY,$(DEVICE) erase-flash)
 
@@ -98,10 +101,10 @@ monitor:
 	$(call RUN_IDF_PY,$(DEVICE) monitor)
 
 size:
-	$(call RUN_IDF_PY,size)
+	$(call RUN_IDF_PY,size $(SIZE_FLAGS))
 
 size-components:
-	$(call RUN_IDF_PY,size-components)
+	$(call RUN_IDF_PY,size-components $(SIZE_FLAGS))
 
 size-files:
 	$(call RUN_IDF_PY,size-files)
@@ -112,4 +115,4 @@ size-files:
 # This is done in a dedicated build directory as some CMake cache values are not
 # set correctly if not all submodules are loaded yet.
 submodules:
-	$(Q)IDF_COMPONENT_MANAGER=0 idf.py $(IDFPY_FLAGS) -B $(BUILD)/submodules -D UPDATE_SUBMODULES=1 reconfigure
+	$(Q)idf.py $(IDFPY_FLAGS) -B $(BUILD)/submodules -D UPDATE_SUBMODULES=1 reconfigure
